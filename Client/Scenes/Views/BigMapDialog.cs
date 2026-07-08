@@ -253,7 +253,8 @@ namespace Client.Scenes.Views
                 ButtonType = ButtonType.Default,
                 Label = { Text = "Recenter" },
                 Parent = this,
-                Size = new Size(80, DefaultHeight)
+                Size = new Size(80, DefaultHeight),
+                LabelStyle = ButtonLabelStyle.Gold,
             };
             RecenterButton.MouseClick += RecenterButton_MouseClick;
         }

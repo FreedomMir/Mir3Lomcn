@@ -151,6 +151,32 @@ namespace Client.Controls
 
         #endregion
 
+        #region LabelStyle
+
+        public ButtonLabelStyle LabelStyle
+        {
+            get => _LabelStyle;
+            set
+            {
+                if (_LabelStyle == value) return;
+
+                ButtonLabelStyle oldValue = _LabelStyle;
+                _LabelStyle = value;
+
+                OnLabelStyleChanged(oldValue, value);
+            }
+        }
+        private ButtonLabelStyle _LabelStyle;
+        public event EventHandler<EventArgs> LabelStyleChanged;
+        public virtual void OnLabelStyleChanged(ButtonLabelStyle oValue, ButtonLabelStyle nValue)
+        {
+            UpdateLabelStyle();
+
+            LabelStyleChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
         #region HoverIndex
 
         public int HoverIndex
@@ -291,12 +317,9 @@ namespace Client.Controls
 
                 if (index > 0)
                 {
-                    MirImage image = Library.CreateImage(index, ImageType.Image);
-
-                    if (image?.Image == null || !image.Image.IsValid)
+                    if (!Library.TryGetTexture(index, ImageType.Image, out MirImage image, out texture, out sourceRectangle))
                         return;
 
-                    texture = image.Image;
                     image.ExpireTime = CEnvir.Now + Config.CacheDuration;
                 }
             }
@@ -405,6 +428,28 @@ namespace Client.Controls
             else
                 ForeColour = MouseControl == this || Pressed ? Color.White : Color.FromArgb(217, 217, 217);
         }
+
+        private void UpdateLabelStyle()
+        {
+            if (Label == null) return;
+
+            switch (LabelStyle)
+            {
+                case ButtonLabelStyle.Gold:
+                    Label.Outline = true;
+                    Label.OutlineColour = Color.Black;
+                    Label.Gradient = true;
+                    Label.GradientTopColour = Color.FromArgb(255, 244, 166);
+                    Label.GradientBottomColour = Color.FromArgb(197, 121, 26);
+                    break;
+                default:
+                    Label.Gradient = false;
+                    Label.GradientTopColour = Color.Empty;
+                    Label.GradientBottomColour = Color.Empty;
+                    break;
+            }
+        }
+
 
         private void DrawDefault()
         {
@@ -549,6 +594,7 @@ namespace Client.Controls
                 _CanBePressed = false;
                 _RightAligned = false;
                 _ButtonType = 0;
+                _LabelStyle = ButtonLabelStyle.None;
 
                 _HoverIndex = 0;
                 _PressedIndex = 0;
@@ -568,6 +614,7 @@ namespace Client.Controls
                 PressedChanged = null;
                 RightAlignedChanged = null;
                 ButtonTypeChanged = null;
+                LabelStyleChanged = null;
                 HoverIndexChanged = null;
                 PressedIndexChanged = null;
             }
@@ -585,5 +632,11 @@ namespace Client.Controls
         RemoveButton,
         LFGButton,
         OptionsButton
+    }
+
+    public enum ButtonLabelStyle
+    {
+        None,
+        Gold
     }
 }

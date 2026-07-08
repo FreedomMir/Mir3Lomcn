@@ -5074,6 +5074,7 @@ namespace Client.Envir
 
                 GameScene.Game.QuestBox.RefreshMilestones();
             }
+            GameScene.Game.UpdateQuestAlertIcons();
         }
 
         public void Process(S.MilestoneEarned p)

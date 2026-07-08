@@ -1,4 +1,6 @@
-﻿namespace Server.Views
+﻿using DevExpress.XtraGrid.Columns;
+
+namespace Server.Views
 {
     partial class NPCPageView
     {
@@ -78,6 +80,7 @@
             GoodsGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
             gridColumn15 = new DevExpress.XtraGrid.Columns.GridColumn();
             gridColumn16 = new DevExpress.XtraGrid.Columns.GridColumn();
+            gridColumn31 = new DevExpress.XtraGrid.Columns.GridColumn();
             PercentTextEdit = new DevExpress.XtraEditors.Repository.RepositoryItemTextEdit();
             NPCPageGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
             colDescription = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -468,7 +471,7 @@
             // 
             // GoodsGridView
             // 
-            GoodsGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { gridColumn15, gridColumn16 });
+            GoodsGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { gridColumn15, gridColumn16, gridColumn31 });
             GoodsGridView.GridControl = NPCPageGridControl;
             GoodsGridView.Name = "GoodsGridView";
             GoodsGridView.OptionsView.EnableAppearanceEvenRow = true;
@@ -492,6 +495,13 @@
             gridColumn16.Name = "gridColumn16";
             gridColumn16.Visible = true;
             gridColumn16.VisibleIndex = 1;
+            // 
+            // gridColumn31
+            // 
+            gridColumn31.FieldName = "GoodsIndex";
+            gridColumn31.Name = "gridColumn31";
+            gridColumn31.Visible = true;
+            gridColumn31.VisibleIndex = 2;
             // 
             // PercentTextEdit
             // 
@@ -733,6 +743,7 @@
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn15;
         private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit ItemInfoLookUpEdit;
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn16;
+        private DevExpress.XtraGrid.Columns.GridColumn gridColumn31;
         private DevExpress.XtraEditors.Repository.RepositoryItemTextEdit PercentTextEdit;
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn13;
         private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit MapLookUpEdit;
