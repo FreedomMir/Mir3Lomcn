@@ -557,6 +557,8 @@ namespace Library
         RollYut,
 
         Consignment,
+
+        GuildTerritory,
     }
 
     public enum MagicSchool
@@ -1845,6 +1847,7 @@ namespace Library
         FundsMerchant = 32,
         FundsMarket = 64,
         StartWar = 128,
+        ManageTerritory = 256,
     }
 
     public enum NPCRequirementType
@@ -2282,6 +2285,8 @@ namespace Library
         GuildCooldown,
         MissingItem,
         NoMap,
+        NoTerritory,
+        TerritoryExpired,
         Success
     }
 

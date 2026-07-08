@@ -1028,6 +1028,10 @@ namespace Library.Network.ServerPackets
         public Color Colour { get; set; }
         public int Flag { get; set; }
 
+        public int TerritoryIndex { get; set; }
+        public string TerritoryName { get; set; }
+        public TimeSpan TerritoryRemaining { get; set; }
+
         public List<ClientGuildMemberInfo> Members { get; set; }
     }
     public sealed class GuildKick : Packet
@@ -1139,6 +1143,15 @@ namespace Library.Network.ServerPackets
     public sealed class GuildConquestFinished : Packet
     {
         public int Index { get; set; }
+    }
+
+    public sealed class GuildTerritoryResult : Packet
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public int TerritoryIndex { get; set; }
+        public string TerritoryName { get; set; }
+        public TimeSpan TerritoryRemaining { get; set; }
     }
 
     public sealed class ReviveTimers : Packet

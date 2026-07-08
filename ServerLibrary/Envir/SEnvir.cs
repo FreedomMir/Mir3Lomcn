@@ -286,6 +286,7 @@ namespace Server.Envir
         public static DBCollection<BlockInfo> BlockInfoList;
         public static DBCollection<FriendInfo> FriendInfoList;
         public static DBCollection<CastleInfo> CastleInfoList;
+        public static DBCollection<GuildTerritoryInfo> GuildTerritoryInfoList;
         public static DBCollection<UserConquest> UserConquestList;
         public static DBCollection<GameGoldPayment> GameGoldPaymentList;
         public static DBCollection<GameStoreFavourite> GameStoreFavouriteList;
@@ -494,6 +495,7 @@ namespace Server.Envir
             BlockInfoList = Session.GetCollection<BlockInfo>();
             FriendInfoList = Session.GetCollection<FriendInfo>();
             CastleInfoList = Session.GetCollection<CastleInfo>();
+            GuildTerritoryInfoList = Session.GetCollection<GuildTerritoryInfo>();
             UserConquestList = Session.GetCollection<UserConquest>();
             GameGoldPaymentList = Session.GetCollection<GameGoldPayment>();
             GameStoreSaleList = Session.GetCollection<GameStoreSale>();
@@ -1308,6 +1310,7 @@ namespace Server.Envir
             BlockInfoList = null;
             FriendInfoList = null;
             CastleInfoList = null;
+            GuildTerritoryInfoList = null;
             UserConquestList = null;
             GameGoldPaymentList = null;
             GameStoreFavouriteList = null;
@@ -1534,6 +1537,7 @@ namespace Server.Envir
                         CalculateLights();
 
                         CheckGuildWars();
+                        CheckGuildTerritories();
 
                         foreach (KeyValuePair<MapInfo, Map> pair in Maps)
                             pair.Value.Process();
@@ -1874,6 +1878,27 @@ namespace Server.Envir
                 warInfo.Guild2 = null;
 
                 warInfo.Delete();
+            }
+        }
+
+        public static void CheckGuildTerritories()
+        {
+            foreach (GuildInfo guild in GuildInfoList.Binding)
+            {
+                if (guild.Territory == null) continue;
+                if (guild.TerritoryExpiry > Now) continue;
+
+                string name = guild.Territory.Name;
+                guild.Territory = null;
+                guild.TerritoryExpiry = DateTime.MinValue;
+
+                S.GuildUpdate update = guild.GetUpdatePacket();
+                foreach (GuildMemberInfo member in guild.Members)
+                {
+                    if (member.Account.Connection?.Player == null) continue;
+                    member.Account.Connection.ReceiveChat($"Guild territory lease for {name} has expired.", MessageType.System);
+                    member.Account.Connection.Player.Enqueue(update);
+                }
             }
         }
 

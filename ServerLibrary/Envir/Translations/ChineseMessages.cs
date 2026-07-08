@@ -339,6 +339,8 @@ namespace Server.Envir.Translations
         public override string InstanceMissingItem { get; set; } = "You must be carrying a {0} to join instance.";
         public override string InstanceNotGroupLeader { get; set; } = "You must be the group leader to start instance.";
         public override string InstanceNoMap { get; set; } = "Failed to move to instance.";
+        public override string InstanceNoTerritory { get; set; } = "Your guild does not have an active territory lease.";
+        public override string InstanceTerritoryExpired { get; set; } = "Your guild territory lease has expired.";
         public override string DisciplineMaxLevel { get; set; } = "Maximum discipline level already reached.";
         public override string DisciplineRequiredLevel { get; set; } = "Required level for next discipline is {0}.";
         public override string DisciplineRequiredGold { get; set; } = "Required gold for next discipline is {0:#,##0}.";

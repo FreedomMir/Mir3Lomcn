@@ -16725,7 +16725,21 @@ namespace Server.Models
                         if (Character.Account.GuildMember == null)
                             return (null, InstanceResult.NotInGuild);
 
-                        if (instance.GuildCooldown.TryGetValue(Character.Account.GuildMember.Guild.GuildName, out DateTime cooldown))
+                        GuildInfo guild = Character.Account.GuildMember.Guild;
+                        if (IsGuildTerritoryInstance(instance))
+                        {
+                            if (guild.Territory == null || guild.Territory.Instance != instance)
+                                return (null, InstanceResult.NoTerritory);
+
+                            if (guild.TerritoryExpiry <= SEnvir.Now)
+                            {
+                                guild.Territory = null;
+                                guild.TerritoryExpiry = DateTime.MinValue;
+                                return (null, InstanceResult.TerritoryExpired);
+                            }
+                        }
+
+                        if (instance.GuildCooldown.TryGetValue(guild.GuildName, out DateTime cooldown))
                         {
                             if (cooldown > SEnvir.Now)
                             {
@@ -16733,7 +16747,7 @@ namespace Server.Models
                             }
                         }
 
-                        foreach (GuildMemberInfo member in Character.Account.GuildMember.Guild.Members)
+                        foreach (GuildMemberInfo member in guild.Members)
                         {
                             if (member.Account.Connection?.Player?.CurrentMap.Instance == instance)
                             {
@@ -16742,7 +16756,7 @@ namespace Server.Models
                                 if (CheckInstanceFreeSpace(instance, sequence))
                                 {
                                     if (!checkOnly)
-                                        instance.GuildCooldown.Remove(Character.Account.GuildMember.Guild.GuildName);
+                                        instance.GuildCooldown.Remove(guild.GuildName);
 
                                     return (sequence, InstanceResult.Success);
                                 }
@@ -16756,7 +16770,7 @@ namespace Server.Models
                             if (CheckInstanceFreeSpace(instance, instance.UserRecord[Name]))
                             {
                                 if (!checkOnly)
-                                    instance.GuildCooldown.Remove(Character.Account.GuildMember.Guild.GuildName);
+                                    instance.GuildCooldown.Remove(guild.GuildName);
 
                                 return (instance.UserRecord[Name], InstanceResult.Success);
                             }
@@ -16769,7 +16783,7 @@ namespace Server.Models
                             return (null, InstanceResult.NotInGuild);
 
                         if (Character.Account.GuildMember.Guild.Castle == null)
-                            return (null, InstanceResult.NotInGuild);
+                            return (null, InstanceResult.NotInCastle);
 
                         if (instance.GuildCooldown.TryGetValue(Character.Account.GuildMember.Guild.GuildName, out DateTime cooldown))
                         {
@@ -16986,7 +17000,23 @@ namespace Server.Models
                         Connection.ReceiveChatWithObservers(con => con.Language.InstanceNoMap, MessageType.System);
                     }
                     break;
+                case InstanceResult.NoTerritory:
+                    {
+                        Connection.ReceiveChatWithObservers(con => con.Language.InstanceNoTerritory, MessageType.System);
+                    }
+                    break;
+                case InstanceResult.TerritoryExpired:
+                    {
+                        Connection.ReceiveChatWithObservers(con => con.Language.InstanceTerritoryExpired, MessageType.System);
+                    }
+                    break;
             }
+        }
+
+        private static bool IsGuildTerritoryInstance(InstanceInfo instance)
+        {
+            if (instance == null) return false;
+            return SEnvir.GuildTerritoryInfoList.Binding.Any(x => x.Enabled && x.Instance == instance);
         }
 
         #endregion

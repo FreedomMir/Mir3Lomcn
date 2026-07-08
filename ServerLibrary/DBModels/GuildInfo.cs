@@ -271,6 +271,36 @@ namespace Server.DBModels
         }
         private int _Flag;
 
+        public GuildTerritoryInfo Territory
+        {
+            get { return _Territory; }
+            set
+            {
+                if (_Territory == value) return;
+
+                var oldValue = _Territory;
+                _Territory = value;
+
+                OnChanged(oldValue, value, "Territory");
+            }
+        }
+        private GuildTerritoryInfo _Territory;
+
+        public DateTime TerritoryExpiry
+        {
+            get { return _TerritoryExpiry; }
+            set
+            {
+                if (_TerritoryExpiry == value) return;
+
+                var oldValue = _TerritoryExpiry;
+                _TerritoryExpiry = value;
+
+                OnChanged(oldValue, value, "TerritoryExpiry");
+            }
+        }
+        private DateTime _TerritoryExpiry;
+
         public UserItem[] Storage = new UserItem[1000];
 
         [Association("Members", true)]
@@ -282,6 +312,10 @@ namespace Server.DBModels
 
         public ClientGuildInfo ToClientInfo()
         {
+            TimeSpan remaining = TimeSpan.Zero;
+            if (Territory != null && TerritoryExpiry > SEnvir.Now)
+                remaining = TerritoryExpiry - SEnvir.Now;
+
             return new ClientGuildInfo
             {
                 GuildName = GuildName,
@@ -301,6 +335,10 @@ namespace Server.DBModels
 
                 Colour = Colour,
                 Flag = Flag,
+
+                TerritoryIndex = Territory?.Index ?? 0,
+                TerritoryName = Territory?.Name,
+                TerritoryRemaining = remaining,
 
                 Tax = (int)(GuildTax * 100),
 
@@ -340,6 +378,8 @@ namespace Server.DBModels
         protected override void OnDeleted()
         {
             Castle = null;
+            Territory = null;
+            TerritoryExpiry = DateTime.MinValue;
 
             base.OnDeleted();
         }
@@ -357,6 +397,10 @@ namespace Server.DBModels
 
         public S.GuildUpdate GetUpdatePacket()
         {
+            TimeSpan remaining = TimeSpan.Zero;
+            if (Territory != null && TerritoryExpiry > SEnvir.Now)
+                remaining = TerritoryExpiry - SEnvir.Now;
+
             return new S.GuildUpdate
             {
                 DailyGrowth = DailyGrowth,
@@ -376,6 +420,10 @@ namespace Server.DBModels
 
                 Colour = Colour,
                 Flag = Flag,
+
+                TerritoryIndex = Territory?.Index ?? 0,
+                TerritoryName = Territory?.Name,
+                TerritoryRemaining = remaining,
 
                 Members = new List<ClientGuildMemberInfo>(),
 

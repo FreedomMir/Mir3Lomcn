@@ -343,6 +343,8 @@ namespace Server.Envir
         public abstract string InstanceMissingItem { get; set; }
         public abstract string InstanceNotGroupLeader { get; set; }
         public abstract string InstanceNoMap { get; set; }
+        public abstract string InstanceNoTerritory { get; set; }
+        public abstract string InstanceTerritoryExpired { get; set; }
 
         [ConfigSection("Discipline")]
         public abstract string DisciplineMaxLevel { get; set; }

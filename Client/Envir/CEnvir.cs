@@ -404,6 +404,7 @@ namespace Client.Envir
                     Globals.HelpInfoList = Session.GetCollection<HelpInfo>();
                     Globals.MilestoneInfoList = Session.GetCollection<MilestoneInfo>();
                     Globals.MilestoneTaskInfoList = Session.GetCollection<MilestoneInfoTask>();
+                    Globals.GuildTerritoryInfoList = Session.GetCollection<GuildTerritoryInfo>();
 
                     KeyBinds = Session.GetCollection<KeyBindInfo>();
                     WindowSettings = Session.GetCollection<WindowSetting>();

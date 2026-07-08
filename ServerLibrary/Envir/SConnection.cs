@@ -1268,6 +1268,27 @@ namespace Server.Envir
             Player.GuildRepairCastleGuards();
         }
 
+        public void Process(C.GuildTerritoryRent p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GuildTerritoryRent(p.Index);
+        }
+
+        public void Process(C.GuildTerritoryRenew p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GuildTerritoryRenew(p.Index);
+        }
+
+        public void Process(C.GuildTerritoryEnter p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GuildTerritoryEnter(p.Index);
+        }
+
         public void Process(C.QuestAccept p)
         {
             if (Stage != GameStage.Game) return;

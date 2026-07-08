@@ -3945,6 +3945,9 @@ namespace Client.Envir
 
             GameScene.Game.GuildBox.GuildInfo.Colour = p.Colour;
             GameScene.Game.GuildBox.GuildInfo.Flag = p.Flag;
+            GameScene.Game.GuildBox.GuildInfo.TerritoryIndex = p.TerritoryIndex;
+            GameScene.Game.GuildBox.GuildInfo.TerritoryName = p.TerritoryName;
+            GameScene.Game.GuildBox.GuildInfo.TerritoryRemaining = p.TerritoryRemaining;
 
             foreach (ClientGuildMemberInfo member in p.Members)
             {
@@ -3981,6 +3984,9 @@ namespace Client.Envir
 
             if (GameScene.Game.GuildBox.Visible)
                 GameScene.Game.GuildBox.RefreshGuildDisplay();
+
+            if (GameScene.Game.NPCGuildTerritoryBox?.IsVisible == true)
+                GameScene.Game.NPCGuildTerritoryBox.RefreshStatus();
         }
         public void Process(S.GuildKick p)
         {
@@ -4161,6 +4167,25 @@ namespace Client.Envir
             CastleInfo castle = CEnvir.CastleInfoList.Binding.First(x => x.Index == p.Index);
 
             castle.WarDate = p.WarDate;
+        }
+
+        public void Process(S.GuildTerritoryResult p)
+        {
+            if (!string.IsNullOrEmpty(p.Message))
+                GameScene.Game.ReceiveChat(p.Message, MessageType.System);
+
+            if (GameScene.Game.GuildBox.GuildInfo != null && p.Success)
+            {
+                GameScene.Game.GuildBox.GuildInfo.TerritoryIndex = p.TerritoryIndex;
+                GameScene.Game.GuildBox.GuildInfo.TerritoryName = p.TerritoryName;
+                GameScene.Game.GuildBox.GuildInfo.TerritoryRemaining = p.TerritoryRemaining;
+
+                if (GameScene.Game.GuildBox.Visible)
+                    GameScene.Game.GuildBox.RefreshGuildDisplay();
+            }
+
+            if (GameScene.Game.NPCGuildTerritoryBox?.IsVisible == true)
+                GameScene.Game.NPCGuildTerritoryBox.RefreshStatus();
         }
 
         public void Process(S.ReviveTimers p)

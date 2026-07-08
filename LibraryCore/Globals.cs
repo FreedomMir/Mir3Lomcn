@@ -36,6 +36,7 @@ namespace Library
         public static DBCollection<HelpInfo> HelpInfoList;
         public static DBCollection<MilestoneInfo> MilestoneInfoList;
         public static DBCollection<MilestoneInfoTask> MilestoneTaskInfoList;
+        public static DBCollection<GuildTerritoryInfo> GuildTerritoryInfoList;
 
         public static Random Random = new Random();
 
@@ -940,6 +941,12 @@ namespace Library
 
         public Color Colour { get; set; }
         public int Flag { get; set; }
+
+        /// <summary>GuildTerritoryInfo.Index, or 0 if none rented.</summary>
+        public int TerritoryIndex { get; set; }
+        public string TerritoryName { get; set; }
+        /// <summary>Remaining lease time. Zero or negative means expired / none.</summary>
+        public TimeSpan TerritoryRemaining { get; set; }
 
         public List<ClientGuildMemberInfo> Members { get; set; }
 

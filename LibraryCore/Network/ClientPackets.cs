@@ -629,6 +629,21 @@ namespace Library.Network.ClientPackets
 
     }
 
+    public sealed class GuildTerritoryRent : Packet
+    {
+        public int Index { get; set; }
+    }
+
+    public sealed class GuildTerritoryRenew : Packet
+    {
+        public int Index { get; set; }
+    }
+
+    public sealed class GuildTerritoryEnter : Packet
+    {
+        public int Index { get; set; }
+    }
+
     public sealed class QuestAccept : Packet
     {
         public int Index { get; set; }

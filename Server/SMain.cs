@@ -652,6 +652,11 @@ namespace Server
             ShowView(typeof(CastleInfoView));
         }
 
+        private void GuildTerritoryInfoButton_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
+        {
+            ShowView(typeof(GuildTerritoryInfoView));
+        }
+
         private void PaymentButton_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
         {
             ShowView(typeof(GameGoldPaymentView));

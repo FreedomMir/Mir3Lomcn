@@ -85,6 +85,9 @@ namespace Client.Scenes.Views
             if (GameScene.Game.NPCWeddingRingBox != null && !IsVisible)
                 GameScene.Game.NPCWeddingRingBox.Visible = false;
 
+            if (GameScene.Game.NPCGuildTerritoryBox != null && !IsVisible)
+                GameScene.Game.NPCGuildTerritoryBox.Visible = false;
+
             if (GameScene.Game.NPCMasterRefineBox != null && !IsVisible)
                 GameScene.Game.NPCMasterRefineBox.Visible = false;
 
@@ -359,6 +362,7 @@ namespace Client.Scenes.Views
             GameScene.Game.NPCCompanionStorageBox.Visible = false;
             GameScene.Game.ConsignmentBox.Visible = false;
             GameScene.Game.NPCWeddingRingBox.Visible = false;
+            GameScene.Game.NPCGuildTerritoryBox.Visible = false;
             GameScene.Game.NPCItemFragmentBox.Visible = false;
             GameScene.Game.NPCCraftBox.Visible = false;
             GameScene.Game.NPCAccessoryUpgradeBox.Visible = false;
@@ -480,6 +484,11 @@ namespace Client.Scenes.Views
                 case NPCDialogType.RollYut:
                     Rolling = true;
                     CEnvir.Enqueue(new C.NPCRoll { Type = 1 });
+                    break;
+                case NPCDialogType.GuildTerritory:
+                    GameScene.Game.NPCGuildTerritoryBox.Visible = true;
+                    GameScene.Game.NPCGuildTerritoryBox.Location = new Point(Size.Width - GameScene.Game.NPCGuildTerritoryBox.Size.Width, Size.Height);
+                    GameScene.Game.NPCGuildTerritoryBox.RefreshList();
                     break;
             }
         }

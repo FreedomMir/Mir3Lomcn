@@ -196,6 +196,7 @@ namespace Client.Scenes
         public NPCAdoptCompanionDialog NPCAdoptCompanionBox;
         public NPCCompanionStorageDialog NPCCompanionStorageBox;
         public NPCWeddingRingDialog NPCWeddingRingBox;
+        public NPCGuildTerritoryDialog NPCGuildTerritoryBox;
         public NPCItemFragmentDialog NPCItemFragmentBox;
         public NPCCraftDialog NPCCraftBox;
         public NPCAccessoryUpgradeDialog NPCAccessoryUpgradeBox;
@@ -573,6 +574,11 @@ namespace Client.Scenes
                 Visible = false,
             };
             NPCWeddingRingBox = new NPCWeddingRingDialog
+            {
+                Parent = this,
+                Visible = false,
+            };
+            NPCGuildTerritoryBox = new NPCGuildTerritoryDialog
             {
                 Parent = this,
                 Visible = false,
@@ -4931,6 +4937,14 @@ namespace Client.Scenes
                         NPCWeddingRingBox.Dispose();
 
                     NPCWeddingRingBox = null;
+                }
+
+                if (NPCGuildTerritoryBox != null)
+                {
+                    if (!NPCGuildTerritoryBox.IsDisposed)
+                        NPCGuildTerritoryBox.Dispose();
+
+                    NPCGuildTerritoryBox = null;
                 }
 
                 if (NPCItemFragmentBox != null)

@@ -152,7 +152,7 @@ namespace Client.Scenes.Views
         #region HomeTab
 
         private DXTab HomeTab;
-        public DXLabel MemberLimitLabel, GuildFundLabel, DailyGrowthLabel, TotalContributionLabel, DailyContributionLabel, GuildTaxLabel;
+        public DXLabel MemberLimitLabel, GuildFundLabel, DailyGrowthLabel, TotalContributionLabel, DailyContributionLabel, GuildTaxLabel, TerritoryLabel;
 
         public DXVScrollBar NoticeScrollBar;
         public DXTextBox NoticeTextBox;
@@ -434,6 +434,8 @@ namespace Client.Scenes.Views
             TotalContributionLabel.Text = string.Empty;
             DailyContributionLabel.Text = string.Empty;
             GuildTaxLabel.Text = string.Empty;
+            if (TerritoryLabel != null)
+                TerritoryLabel.Text = string.Empty;
 
             MemberScrollBar.MaxValue = 0;
 
@@ -473,6 +475,19 @@ namespace Client.Scenes.Views
             TotalContributionLabel.Text = GuildInfo.TotalContribution.ToString("#,##0");
             DailyContributionLabel.Text = GuildInfo.DailyContribution.ToString("#,##0");
             GuildTaxLabel.Text = $"{GuildInfo.Tax}%";
+            if (TerritoryLabel != null)
+            {
+                if (GuildInfo.TerritoryIndex > 0 && GuildInfo.TerritoryRemaining > TimeSpan.Zero)
+                {
+                    TimeSpan remaining = GuildInfo.TerritoryRemaining;
+                    string time = remaining.TotalDays >= 1
+                        ? $"{(int)remaining.TotalDays}d {remaining.Hours}h"
+                        : $"{(int)remaining.TotalHours}h {remaining.Minutes}m";
+                    TerritoryLabel.Text = $"{GuildInfo.TerritoryName} ({time})";
+                }
+                else
+                    TerritoryLabel.Text = "None";
+            }
 
             StyleColour.BackColour = GuildInfo.Colour;
 
@@ -1140,12 +1155,30 @@ namespace Client.Scenes.Views
 
             label = new DXLabel
             {
-                Text = CEnvir.Language.GuildDialogHomeTabNoticeStatsTaxLabel,
+                Text = "Territory",
                 Parent = panel,
                 Outline = true,
                 IsControl = false,
             };
             label.Location = new Point(120 - label.Size.Width, 75);
+
+            TerritoryLabel = new DXLabel
+            {
+                Parent = panel,
+                Outline = true,
+                ForeColour = Color.White,
+                IsControl = false,
+                Location = new Point(120, label.Location.Y),
+            };
+
+            label = new DXLabel
+            {
+                Text = CEnvir.Language.GuildDialogHomeTabNoticeStatsTaxLabel,
+                Parent = panel,
+                Outline = true,
+                IsControl = false,
+            };
+            label.Location = new Point(120 - label.Size.Width, 90);
 
             GuildTaxLabel = new DXLabel
             {
@@ -2731,7 +2764,7 @@ namespace Client.Scenes.Views
 
         public DXTextBox RankTextBox;
 
-        public DXCheckBox LeaderBox, EditNoticeBox, AddMemberBox, StorageBox, RepairBox, MerchantBox, MarketBox, StartWarBox;
+        public DXCheckBox LeaderBox, EditNoticeBox, AddMemberBox, StorageBox, RepairBox, MerchantBox, MarketBox, StartWarBox, TerritoryBox;
 
         public DXButton ConfirmButton, KickButton;
 
@@ -2803,6 +2836,7 @@ namespace Client.Scenes.Views
             MerchantBox.Checked = (Permission & GuildPermission.FundsMerchant) == GuildPermission.FundsMerchant;
             MarketBox.Checked = (Permission & GuildPermission.FundsMarket) == GuildPermission.FundsMarket;
             StartWarBox.Checked = (Permission & GuildPermission.StartWar) == GuildPermission.StartWar;
+            TerritoryBox.Checked = (Permission & GuildPermission.ManageTerritory) == GuildPermission.ManageTerritory;
 
             Updating = false;
             PermissionChanged?.Invoke(this, EventArgs.Empty);
@@ -2819,7 +2853,7 @@ namespace Client.Scenes.Views
 
         public GuildMemberDialog()
         {
-            SetClientSize(new Size(200, 160));
+            SetClientSize(new Size(200, 180));
 
             TitleLabel.Text = CEnvir.Language.GuildMemberDialogTitle;
 
@@ -2893,6 +2927,14 @@ namespace Client.Scenes.Views
             };
             StartWarBox.CheckedChanged += (o, e) => UpdatePermission();
             StartWarBox.Location = new Point(094 - StartWarBox.Size.Width, StorageBox.Location.Y + 20);
+
+            TerritoryBox = new DXCheckBox
+            {
+                Parent = this,
+                Label = { Text = "Territory" },
+            };
+            TerritoryBox.CheckedChanged += (o, e) => UpdatePermission();
+            TerritoryBox.Location = new Point(094 - TerritoryBox.Size.Width, StartWarBox.Location.Y + 20);
 
             RepairBox = new DXCheckBox
             {
@@ -2987,6 +3029,8 @@ namespace Client.Scenes.Views
 
             if (StartWarBox.Checked)
                 permission |= GuildPermission.StartWar;
+            if (TerritoryBox.Checked)
+                permission |= GuildPermission.ManageTerritory;
 
 
             Permission = permission;
