@@ -1,6 +1,7 @@
 ﻿using Client.Controls;
 using Client.Envir;
 using Client.Models;
+using Client.Scenes.Automation;
 using Client.Scenes.Views;
 using Client.UserModels;
 using Library;
@@ -19,7 +20,7 @@ using C = Library.Network.ClientPackets;
 //Cleaned
 namespace Client.Scenes
 {
-    public sealed class GameScene : DXScene
+    public sealed partial class GameScene : DXScene
     {
         #region Properties
         public static GameScene Game;
@@ -210,6 +211,8 @@ namespace Client.Scenes
         public BuffDialog BuffBox;
         public StorageDialog StorageBox;
         public AutoPotionDialog AutoPotionBox;
+        public AutoPlayDialog AutoPlayBox;
+        public DXLabel AutoPlayStatusLabel;
         public CharacterDialog InspectBox;
         public RankingDialog RankingBox;
         public GameStoreDialog GameStoreBox;
@@ -244,6 +247,14 @@ namespace Client.Scenes
 
         public HashSet<string> GuildWars = new HashSet<string>();
         public HashSet<CastleInfo> ConquestWars = new HashSet<CastleInfo>();
+
+        public AutoPlayer AutoPlay;
+        public bool AllowAutoPlay = true;
+        public int BindPointMapIndex = -1;
+        public Point BindPointLocation;
+        public int TownActionRange = 12;
+        public List<ClientDropFilterInfo> DropFilters = new List<ClientDropFilterInfo>();
+        public List<ClientQuickBuyTarget> QuickBuyTargets = new List<ClientQuickBuyTarget>();
 
         public SortedDictionary<uint, ClientObjectData> DataDictionary = new SortedDictionary<uint, ClientObjectData>();
 
@@ -448,6 +459,7 @@ namespace Client.Scenes
                 Parent = this,
                 Size = Size,
             };
+            AutoPlay = new AutoPlayer(this);
             MapControl.MouseWheel += (o, e) =>
             {
                 foreach (ChatTab tab in ChatTab.Tabs)
@@ -605,6 +617,21 @@ namespace Client.Scenes
                 Parent = this,
                 Visible = false
             };
+            AutoPlayBox = new AutoPlayDialog
+            {
+                Parent = this,
+                Visible = false
+            };
+            AutoPlayStatusLabel = new DXLabel
+            {
+                Parent = this,
+                Visible = false,
+                IsControl = false,
+                ForeColour = Color.Cyan,
+                Outline = true,
+                OutlineColour = Color.Black
+            };
+            AutoPlay.StateChanged += (o, e) => UpdateAutoPlayStatus();
             NPCRefinementStoneBox = new NPCRefinementStoneDialog
             {
                 Parent = this,
@@ -877,6 +904,8 @@ namespace Client.Scenes
 
             AutoPotionBox.Location = new Point((Size.Width - AutoPotionBox.Size.Width) / 2, (Size.Height - AutoPotionBox.Size.Height) / 2);
 
+            AutoPlayBox.Location = new Point((Size.Width - AutoPlayBox.Size.Width) / 2, (Size.Height - AutoPlayBox.Size.Height) / 2);
+
             InspectBox.Location = new Point(CharacterBox.Size.Width, 0);
 
             RankingBox.Location = new Point((Size.Width - RankingBox.Size.Width) / 2, (Size.Height - RankingBox.Size.Height) / 2);
@@ -1099,6 +1128,15 @@ namespace Client.Scenes
             }
 
             MapControl.ProcessInput();
+            try
+            {
+                AutoPlay?.Process();
+            }
+            catch (Exception ex)
+            {
+                CEnvir.SaveException(ex);
+                AutoPlay?.Stop("Error - Auto Play stopped.");
+            }
 
             foreach (MapObject ob in MapControl.Objects)
                 ob.Process();
@@ -1257,6 +1295,20 @@ namespace Client.Scenes
                         break;
                     case KeyBindAction.AutoPotionWindow:
                         AutoPotionBox.Visible = !AutoPotionBox.Visible;
+                        break;
+                    case KeyBindAction.AutoPlayToggle:
+                        try
+                        {
+                            AutoPlay?.Toggle();
+                        }
+                        catch (Exception ex)
+                        {
+                            CEnvir.SaveException(ex);
+                            ReceiveChat("[AutoPlay] Toggle failed: " + ex.Message, MessageType.System);
+                        }
+                        break;
+                    case KeyBindAction.AutoPlayWindow:
+                        AutoPlayBox.Visible = !AutoPlayBox.Visible;
                         break;
                     case KeyBindAction.StorageWindow:
                         StorageBox.Visible = !StorageBox.Visible;
@@ -4183,6 +4235,33 @@ namespace Client.Scenes
             CharacterBox.MarriageIcon.Visible = !string.IsNullOrEmpty(Partner?.Name);
             CharacterBox.MarriageLabel.Visible = !string.IsNullOrEmpty(Partner?.Name);
             CharacterBox.MarriageLabel.Text = Partner?.Name;
+        }
+
+        public ClientDropFilterRule GetDropFilterRule(ItemInfo info) => null;
+
+        public int GetQuickBuyTargetAmount(ItemInfo info)
+        {
+            if (info == null) return 0;
+            return QuickBuyTargets.FirstOrDefault(x => x.ItemInfoIndex == info.Index)?.TargetAmount ?? 0;
+        }
+
+        public void UpdateAutoPlayStatus()
+        {
+            if (AutoPlayStatusLabel == null || AutoPlayStatusLabel.IsDisposed || AutoPlay == null) return;
+
+            if (!AutoPlay.Enabled)
+            {
+                AutoPlayStatusLabel.Visible = false;
+                return;
+            }
+
+            AutoPlayStatusLabel.Text = "Auto: " + (string.IsNullOrEmpty(AutoPlay.StateText) ? AutoPlay.Intention.ToString() : AutoPlay.StateText);
+            AutoPlayStatusLabel.Visible = true;
+
+            if (MiniMapBox != null && !MiniMapBox.IsDisposed && MiniMapBox.Visible)
+                AutoPlayStatusLabel.Location = new Point(MiniMapBox.Location.X + (MiniMapBox.Size.Width - AutoPlayStatusLabel.Size.Width) / 2, MiniMapBox.Location.Y + MiniMapBox.Size.Height + 2);
+            else
+                AutoPlayStatusLabel.Location = new Point(Size.Width - AutoPlayStatusLabel.Size.Width - 10, 40);
         }
 
         public void ReceiveChat(string message, MessageType type, List<ClientUserItem> linkedItems = null)

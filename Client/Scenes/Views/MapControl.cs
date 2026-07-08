@@ -585,6 +585,7 @@ namespace Client.Scenes.Views
         public override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+            GameScene.Game.AutoPlay?.NotifyManualInput();
 
             if (GameScene.Game.Observer) return;
 

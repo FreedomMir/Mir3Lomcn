@@ -19,6 +19,36 @@ namespace Client.Models
 
         public MonsterInfo MonsterInfo;
 
+        public bool HarvestLoot;
+
+        public static bool IsHarvestAI(int ai)
+        {
+            switch (ai)
+            {
+                case 1:
+                case 2:
+                case 3:
+                case 5:
+                case 6:
+                case 8:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsPassiveAI(int ai)
+        {
+            return (uint)(ai - 1) <= 1u;
+        }
+
+        public static bool IsMagicImmuneAI(int ai)
+        {
+            return ai == 4 || ai == 124;
+        }
+
+        public uint TargetID;
+
         public MirLibrary BodyLibrary;
         public int BodyOffSet = 1000;
         public int BodyShape;

@@ -205,6 +205,37 @@ namespace Library.Network.ClientPackets
         public bool Enabled { get; set; }
     }
 
+    public sealed class AutoPlaySettingsChanged : Packet
+    {
+        public ClientAutoPlaySettings Settings { get; set; }
+    }
+
+    public sealed class MagicAutoPlay : Packet
+    {
+        public MagicType Magic { get; set; }
+        public bool AutoPlayEnabled { get; set; }
+        public int AutoPlayThreshold { get; set; }
+    }
+
+    public sealed class AutoSell : Packet
+    {
+        public uint ObjectID { get; set; }
+        public List<CellLinkInfo> Links { get; set; }
+    }
+
+    public sealed class AutoRepair : Packet
+    {
+        public uint ObjectID { get; set; }
+        public List<CellLinkInfo> Links { get; set; }
+        public bool Special { get; set; }
+    }
+
+    public sealed class AutoBuy : Packet
+    {
+        public uint ObjectID { get; set; }
+        public List<AutoBuyItem> Purchases { get; set; }
+    }
+
     public sealed class PickUp : Packet { }
 
     public sealed class Chat : Packet

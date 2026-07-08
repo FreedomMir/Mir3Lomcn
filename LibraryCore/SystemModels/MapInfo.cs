@@ -165,6 +165,21 @@ namespace Library.SystemModels
         }
         private bool _AllowTT;
 
+        public bool DisableAutoPlay
+        {
+            get { return _DisableAutoPlay; }
+            set
+            {
+                if (_DisableAutoPlay == value) return;
+
+                var oldValue = _DisableAutoPlay;
+                _DisableAutoPlay = value;
+
+                OnChanged(oldValue, value, "DisableAutoPlay");
+            }
+        }
+        private bool _DisableAutoPlay;
+
         public bool CanMine
         {
             get { return _CanMine; }

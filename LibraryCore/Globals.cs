@@ -396,6 +396,14 @@ namespace Library
         public List<ClientAutoPotionLink> AutoPotionLinks { get; set; }
         public List<ClientUserMilestone> Milestones { get; set; }
 
+        public bool AllowAutoPlay { get; set; }
+        public ClientAutoPlaySettings AutoPlaySettings { get; set; }
+        public int BindPointMapIndex { get; set; } = -1;
+        public Point BindPointLocation { get; set; }
+        public int TownActionRange { get; set; } = 12;
+        public List<ClientDropFilterInfo> DropFilters { get; set; }
+        public List<ClientQuickBuyTarget> QuickBuyTargets { get; set; }
+
         public List<ClientUserMagic> Magics { get; set; }
         public List<ClientBuffInfo> Buffs { get; set; }
 
@@ -804,6 +812,8 @@ namespace Library
 
         public DateTime NextCast;
 
+        public bool AutoPlayEnabled { get; set; } = true;
+        public int AutoPlayThreshold { get; set; } = 60;
 
         [IgnorePropertyPacket]
         public int Cost => Info.BaseCost + Level * Info.LevelCost / 3;

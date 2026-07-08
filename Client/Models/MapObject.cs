@@ -3591,7 +3591,7 @@ namespace Client.Models
                 case MirAction.Spell:
                     MagicType = (MagicType)action.Extra[0];
 
-                    targets = (List<uint>)action.Extra[1];
+                    targets = action.Extra.Length > 1 ? (List<uint>)action.Extra[1] : new List<uint>();
                     AttackTargets = new List<MapObject>();
                     foreach (uint target in targets)
                     {
@@ -3599,9 +3599,9 @@ namespace Client.Models
                         if (attackTarget == null) continue;
                         AttackTargets.Add(attackTarget);
                     }
-                    MagicLocations = (List<Point>)action.Extra[2];
-                    MagicCast = (bool)action.Extra[3];
-                    AttackElement = (Element)action.Extra[4];
+                    MagicLocations = action.Extra.Length > 2 ? (List<Point>)action.Extra[2] : new List<Point>();
+                    MagicCast = action.Extra.Length > 3 && (bool)action.Extra[3];
+                    AttackElement = action.Extra.Length > 4 ? (Element)action.Extra[4] : Element.None;
 
                     attackColour = Functions.GetElementColour(AttackElement);
 

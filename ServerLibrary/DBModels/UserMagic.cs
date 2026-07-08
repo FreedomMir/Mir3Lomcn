@@ -164,6 +164,36 @@ namespace Server.DBModels
 
         public DateTime Cooldown;
 
+        public bool AutoPlayEnabled
+        {
+            get { return _AutoPlayEnabled; }
+            set
+            {
+                if (_AutoPlayEnabled == value) return;
+
+                var oldValue = _AutoPlayEnabled;
+                _AutoPlayEnabled = value;
+
+                OnChanged(oldValue, value, "AutoPlayEnabled");
+            }
+        }
+        private bool _AutoPlayEnabled = true;
+
+        public int AutoPlayThreshold
+        {
+            get { return _AutoPlayThreshold; }
+            set
+            {
+                if (_AutoPlayThreshold == value) return;
+
+                var oldValue = _AutoPlayThreshold;
+                _AutoPlayThreshold = value;
+
+                OnChanged(oldValue, value, "AutoPlayThreshold");
+            }
+        }
+        private int _AutoPlayThreshold = 60;
+
         [IgnoreProperty]
         public int Cost => Info.BaseCost + Level * Info.LevelCost / 3;
 
@@ -202,6 +232,9 @@ namespace Server.DBModels
                 Level = Level,
                 Experience = Experience,
                 ItemRequired = ItemRequired,
+
+                AutoPlayEnabled = AutoPlayEnabled,
+                AutoPlayThreshold = AutoPlayThreshold,
 
                 Cooldown = Cooldown > SEnvir.Now ? Cooldown - SEnvir.Now : TimeSpan.Zero,
             };

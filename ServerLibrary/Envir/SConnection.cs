@@ -546,6 +546,41 @@ namespace Server.Envir
             Player.AutoPotionLinkChanged(p);
         }
 
+        public void Process(C.AutoPlaySettingsChanged p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.AutoPlaySettingsChanged(p);
+        }
+
+        public void Process(C.MagicAutoPlay p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.MagicAutoPlay(p);
+        }
+
+        public void Process(C.AutoSell p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.AutoSell(p);
+        }
+
+        public void Process(C.AutoRepair p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.AutoRepair(p);
+        }
+
+        public void Process(C.AutoBuy p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.AutoBuy(p);
+        }
+
         public void Process(C.Chat p)
         {
             if (string.IsNullOrEmpty(p.Text) || p.Text.Length > Globals.MaxChatLength) return;

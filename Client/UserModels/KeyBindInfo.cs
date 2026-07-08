@@ -185,6 +185,10 @@ namespace Client.UserModels
         GroupWindow,
         [Description("Auto Potion Window")]
         AutoPotionWindow,
+        [Description("Auto Play Toggle")]
+        AutoPlayToggle,
+        [Description("Auto Play Window")]
+        AutoPlayWindow,
         [Description("Storage Window")]
         StorageWindow,
         [Description("Block List Window")]

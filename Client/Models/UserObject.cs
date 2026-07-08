@@ -380,6 +380,15 @@ namespace Client.Models
             }
             GameScene.Game.AutoPotionBox.UpdateLinks();
 
+            GameScene.Game.AllowAutoPlay = info.AllowAutoPlay;
+            GameScene.Game.BindPointMapIndex = info.BindPointMapIndex;
+            GameScene.Game.BindPointLocation = info.BindPointLocation;
+            GameScene.Game.TownActionRange = info.TownActionRange;
+            GameScene.Game.DropFilters = info.DropFilters ?? new List<ClientDropFilterInfo>();
+            GameScene.Game.QuickBuyTargets = info.QuickBuyTargets ?? new List<ClientQuickBuyTarget>();
+            if (GameScene.Game.AutoPlay != null && info.AutoPlaySettings != null)
+                GameScene.Game.AutoPlay.Settings = info.AutoPlaySettings;
+
             GameScene.Game.CommunicationBox.OnlineState = info.OnlineState;
             GameScene.Game.CommunicationBox.FriendList = info.Friends;
             GameScene.Game.CommunicationBox.RefreshFriendList();

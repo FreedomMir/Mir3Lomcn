@@ -168,6 +168,7 @@ namespace Server.Models
         public MagicList MagicObjects = new MagicList();
 
         public List<AutoPotionLink> AutoPotions = new List<AutoPotionLink>();
+        public ClientAutoPlaySettings AutoPlaySettings = new ClientAutoPlaySettings();
         public CellLinkInfo DelayItemUse;
         public decimal MaxExperience, ExperienceAccumulated;
 
@@ -882,6 +883,12 @@ namespace Server.Models
                 FiltersClass = Character.FiltersClass,
                 FiltersRarity = Character.FiltersRarity,
                 FiltersItemType = Character.FiltersItemType,
+
+                AllowAutoPlay = true,
+                AutoPlaySettings = AutoPlaySettings ?? new ClientAutoPlaySettings(),
+                BindPointMapIndex = Character.BindPoint?.BindRegion?.Map?.Index ?? -1,
+                BindPointLocation = Character.BindPoint?.ValidBindPoints?.FirstOrDefault() ?? Point.Empty,
+                TownActionRange = 12,
 
                 StruckEnabled = Config.EnableStruck,
                 HermitEnabled = Config.EnableHermit
@@ -8393,6 +8400,22 @@ namespace Server.Models
             AutoPotions.Add(aLink);
             AutoPotions.Sort((x1, x2) => x1.Slot.CompareTo(x2.Slot));
         }
+
+        public void AutoPlaySettingsChanged(C.AutoPlaySettingsChanged p)
+        {
+            if (p?.Settings == null) return;
+            AutoPlaySettings = p.Settings;
+        }
+
+        public void MagicAutoPlay(C.MagicAutoPlay p)
+        {
+            UserMagic magic = Character.Magics.FirstOrDefault(x => x.Info.Magic == p.Magic);
+            if (magic == null) return;
+
+            magic.AutoPlayEnabled = p.AutoPlayEnabled;
+            magic.AutoPlayThreshold = p.AutoPlayThreshold;
+        }
+
         public void PickUp()
         {
             if (Dead) return;
@@ -10227,6 +10250,130 @@ namespace Server.Models
             LogMilestone(MilestoneType.CurrencyGain, amount, currency: userCurrency.Info);
 
             CurrencyChanged(userCurrency);
+        }
+
+        public void AutoSell(C.AutoSell p)
+        {
+            var result = new S.AutoTownResult { Action = AutoTownAction.Sell };
+            if (p?.Links == null || p.Links.Count == 0)
+            {
+                result.Message = "No items to sell.";
+                Enqueue(result);
+                return;
+            }
+            if (!PrepareAutoTownNPC(p.ObjectID, NPCDialogType.BuySell))
+            {
+                result.Message = "Unable to reach sell merchant.";
+                Enqueue(result);
+                return;
+            }
+
+            NPCSell(p.Links);
+            result.Success = true;
+            result.Message = $"Sold {p.Links.Count} item line(s).";
+            Enqueue(result);
+        }
+
+        public void AutoRepair(C.AutoRepair p)
+        {
+            var result = new S.AutoTownResult { Action = AutoTownAction.Repair };
+            if (p?.Links == null || p.Links.Count == 0)
+            {
+                result.Message = "No items to repair.";
+                Enqueue(result);
+                return;
+            }
+            if (!PrepareAutoTownNPC(p.ObjectID, NPCDialogType.Repair))
+            {
+                result.Message = "Unable to reach repair NPC.";
+                Enqueue(result);
+                return;
+            }
+
+            NPCRepair(new C.NPCRepair { Links = p.Links, Special = p.Special });
+            result.Success = true;
+            result.Message = $"Repaired {p.Links.Count} item(s).";
+            Enqueue(result);
+        }
+
+        public void AutoBuy(C.AutoBuy p)
+        {
+            var result = new S.AutoTownResult { Action = AutoTownAction.Buy };
+            if (p?.Purchases == null || p.Purchases.Count == 0)
+            {
+                result.Message = "Nothing to buy.";
+                Enqueue(result);
+                return;
+            }
+            if (!PrepareAutoTownNPC(p.ObjectID, NPCDialogType.BuySell))
+            {
+                result.Message = "Unable to reach vendor.";
+                Enqueue(result);
+                return;
+            }
+
+            int bought = 0;
+            foreach (AutoBuyItem purchase in p.Purchases)
+            {
+                if (purchase.Amount <= 0) continue;
+                NPCBuy(new C.NPCBuy { Index = purchase.Index, Amount = (int)Math.Min(int.MaxValue, purchase.Amount) });
+                bought++;
+            }
+
+            result.Success = bought > 0;
+            result.Message = bought > 0 ? $"Bought {bought} item line(s)." : "Unable to buy requested items.";
+            Enqueue(result);
+        }
+
+        private bool PrepareAutoTownNPC(uint objectID, NPCDialogType dialogType)
+        {
+            NPC = null;
+            NPCPage = null;
+
+            foreach (NPCObject ob in CurrentMap.NPCs)
+            {
+                if (ob.ObjectID != objectID) continue;
+                if (!Functions.InRange(ob.CurrentLocation, CurrentLocation, Config.MaxViewRange)) return false;
+
+                NPCPage page = FindNPCPage(ob.NPCInfo?.EntryPage, dialogType);
+                if (page == null) return false;
+
+                NPC = ob;
+                NPCPage = page;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static NPCPage FindNPCPage(NPCPage root, NPCDialogType dialogType)
+        {
+            if (root == null) return null;
+
+            var visited = new HashSet<NPCPage>();
+            var stack = new Stack<NPCPage>();
+            stack.Push(root);
+
+            while (stack.Count > 0)
+            {
+                NPCPage page = stack.Pop();
+                if (page == null || !visited.Add(page)) continue;
+
+                if (page.DialogType == dialogType) return page;
+
+                if (page.SuccessPage != null)
+                    stack.Push(page.SuccessPage);
+
+                if (page.Buttons == null) continue;
+
+                foreach (Library.SystemModels.NPCButton button in page.Buttons)
+                {
+                    if (button?.DestinationPage != null)
+                        stack.Push(button.DestinationPage);
+                }
+            }
+
+            return null;
         }
 
         public void NPCFragment(List<CellLinkInfo> links)

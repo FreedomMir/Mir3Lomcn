@@ -532,8 +532,16 @@ namespace Library.Network.ServerPackets
         public MirDirection Direction { get; set; }
         public Point Location { get; set; }
     }
-
-
+    public sealed class ObjectHarvestLoot : Packet
+    {
+        public uint ObjectID { get; set; }
+    }
+    public sealed class AutoTownResult : Packet
+    {
+        public AutoTownAction Action { get; set; }
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
 
     public sealed class ItemsGained : Packet
     {

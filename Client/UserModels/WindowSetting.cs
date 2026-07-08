@@ -129,6 +129,7 @@ namespace Client.UserModels
         BuffBox,
         StorageBox,
         AutoPotionBox,
+        AutoPlayBox,
         InspectBox,
         RankingBox,
         MarketPlaceBox,

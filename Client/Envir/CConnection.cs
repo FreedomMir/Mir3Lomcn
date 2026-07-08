@@ -850,7 +850,17 @@ namespace Client.Envir
         public void Process(S.ObjectMonster p)
         {
             new MonsterObject(p);
-
+            if (GameScene.Game?.MapControl?.Objects != null)
+            {
+                foreach (MapObject ob in GameScene.Game.MapControl.Objects)
+                {
+                    if (ob.ObjectID == p.ObjectID && ob is MonsterObject monster)
+                    {
+                        GameScene.Game.AutoPlay?.ObserveMonster(monster);
+                        break;
+                    }
+                }
+            }
         }
         public void Process(S.ObjectNPC p)
         {
@@ -1114,6 +1124,8 @@ namespace Client.Envir
 
                 if (ob == MapObject.User)
                 {
+                    GameScene.Game.AutoPlay?.ObserveStruck(p.AttackerID);
+
                     if (MapObject.User.CurrentLocation != p.Location || MapObject.User.Direction != p.Direction)
                         GameScene.Game.Displacement(p.Direction, p.Location);
 
@@ -1211,6 +1223,10 @@ namespace Client.Envir
                 if (ob.ObjectID != p.ObjectID) continue;
 
                 ob.ActionQueue.Add(new ObjectAction(MirAction.Attack, p.Direction, p.Location, p.TargetID, p.AttackMagic, p.AttackElement));
+
+                if (ob is MonsterObject monster)
+                    monster.TargetID = p.TargetID;
+
                 return;
             }
         }
@@ -1403,11 +1419,32 @@ namespace Client.Envir
                 ob.Dead = true;
                 ob.ActionQueue.Add(new ObjectAction(MirAction.Die, p.Direction, p.Location));
 
+                if (ob is MonsterObject monster && MonsterObject.IsHarvestAI(monster.MonsterInfo?.AI ?? -1))
+                    monster.HarvestLoot = true;
+
+                GameScene.Game.AutoPlay?.ObserveObjectDied(p.ObjectID);
+
                 if (ob == MapObject.User)
                     GameScene.Game.ReceiveChat(MessageAction.Revive);
 
                 return;
             }
+        }
+        public void Process(S.ObjectHarvestLoot p)
+        {
+            foreach (MapObject ob in GameScene.Game.MapControl.Objects)
+            {
+                if (ob.ObjectID != p.ObjectID) continue;
+
+                if (ob is MonsterObject monster)
+                    monster.HarvestLoot = true;
+
+                return;
+            }
+        }
+        public void Process(S.AutoTownResult p)
+        {
+            GameScene.Game.AutoPlay?.ObserveAutoTownResult(p);
         }
         public void Process(S.ObjectHarvested p)
         {

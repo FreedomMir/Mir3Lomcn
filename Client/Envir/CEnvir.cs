@@ -565,6 +565,31 @@ namespace Client.Envir
                         break;
                 }
             }
+
+            // Upgrade older autoplay defaults that collided with SpellUse09 (plain F9).
+            foreach (KeyBindInfo bind in KeyBinds.Binding)
+            {
+                if (bind.Action != KeyBindAction.AutoPlayToggle) continue;
+                if (bind.Key1 == Keys.F9 && !bind.Control1 && !bind.Alt1 && !bind.Shift1)
+                {
+                    bind.Control1 = true;
+                    bind.Alt1 = false;
+                    bind.Shift1 = false;
+                }
+                if (bind.Key2 == Keys.F9 && !bind.Control2 && !bind.Alt2 && !bind.Shift2)
+                {
+                    bind.Key2 = Keys.None;
+                }
+            }
+
+            foreach (KeyBindInfo bind in KeyBinds.Binding)
+            {
+                if (bind.Action != KeyBindAction.AutoPlayWindow) continue;
+                if (bind.Key1 == Keys.F9 && bind.Shift1 && !bind.Control1 && !bind.Alt1)
+                {
+                    bind.Control1 = true;
+                }
+            }
         }
 
         public static void ResetKeyBind(KeyBindAction action)
@@ -627,6 +652,18 @@ namespace Client.Envir
                 case KeyBindAction.AutoPotionWindow:
                     bind.Category = "Windows";
                     bind.Key1 = Keys.A;
+                    break;
+                case KeyBindAction.AutoPlayToggle:
+                    // Avoid plain F9 - that is already SpellUse09 by default.
+                    bind.Category = "Functions";
+                    bind.Key1 = Keys.F9;
+                    bind.Control1 = true;
+                    break;
+                case KeyBindAction.AutoPlayWindow:
+                    bind.Category = "Windows";
+                    bind.Key1 = Keys.F9;
+                    bind.Control1 = true;
+                    bind.Shift1 = true;
                     break;
                 case KeyBindAction.StorageWindow:
                     bind.Category = "Windows";
