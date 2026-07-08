@@ -1289,6 +1289,34 @@ namespace Server.Envir
             Player.GuildTerritoryEnter(p.Index);
         }
 
+        public void Process(C.GuildTerritoryUpgrade p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GuildTerritoryUpgrade();
+        }
+
+        public void Process(C.GuildTerritorySummon p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GuildTerritorySummon(p.MemberName);
+        }
+
+        public void Process(C.GuildTerritoryRecall p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GuildTerritoryRecall();
+        }
+
+        public void Process(C.GuildTerritoryAcceptRecall p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GuildTerritoryAcceptRecall(p.SummonerName);
+        }
+
         public void Process(C.QuestAccept p)
         {
             if (Stage != GameStage.Game) return;

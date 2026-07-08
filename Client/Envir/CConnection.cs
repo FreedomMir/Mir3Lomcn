@@ -3948,6 +3948,7 @@ namespace Client.Envir
             GameScene.Game.GuildBox.GuildInfo.TerritoryIndex = p.TerritoryIndex;
             GameScene.Game.GuildBox.GuildInfo.TerritoryName = p.TerritoryName;
             GameScene.Game.GuildBox.GuildInfo.TerritoryRemaining = p.TerritoryRemaining;
+            GameScene.Game.GuildBox.GuildInfo.TerritoryRank = p.TerritoryRank;
 
             foreach (ClientGuildMemberInfo member in p.Members)
             {
@@ -4179,6 +4180,7 @@ namespace Client.Envir
                 GameScene.Game.GuildBox.GuildInfo.TerritoryIndex = p.TerritoryIndex;
                 GameScene.Game.GuildBox.GuildInfo.TerritoryName = p.TerritoryName;
                 GameScene.Game.GuildBox.GuildInfo.TerritoryRemaining = p.TerritoryRemaining;
+                GameScene.Game.GuildBox.GuildInfo.TerritoryRank = p.TerritoryRank;
 
                 if (GameScene.Game.GuildBox.Visible)
                     GameScene.Game.GuildBox.RefreshGuildDisplay();
@@ -4186,6 +4188,11 @@ namespace Client.Envir
 
             if (GameScene.Game.NPCGuildTerritoryBox?.IsVisible == true)
                 GameScene.Game.NPCGuildTerritoryBox.RefreshStatus();
+        }
+
+        public void Process(S.GuildTerritoryRecallRequest p)
+        {
+            GameScene.Game.ReceiveChat(MessageAction.GuildTerritoryRecall, p.SummonerName, p.TerritoryName);
         }
 
         public void Process(S.ReviveTimers p)

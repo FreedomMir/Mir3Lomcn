@@ -483,7 +483,7 @@ namespace Client.Scenes.Views
                     string time = remaining.TotalDays >= 1
                         ? $"{(int)remaining.TotalDays}d {remaining.Hours}h"
                         : $"{(int)remaining.TotalHours}h {remaining.Minutes}m";
-                    TerritoryLabel.Text = $"{GuildInfo.TerritoryName} ({time})";
+                    TerritoryLabel.Text = $"{GuildInfo.TerritoryName} R{GuildInfo.TerritoryRank} ({time})";
                 }
                 else
                     TerritoryLabel.Text = "None";

@@ -253,6 +253,7 @@ namespace Library
         DeathDrops = 18,
 
         Fame = 19,
+        GuildTerritory = 20,
 
         //War
         Defiance = 100,
@@ -513,6 +514,7 @@ namespace Library
     {
         None,
         Revive,
+        GuildTerritoryRecall,
     }
 
     public enum MessageType

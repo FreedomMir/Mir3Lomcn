@@ -67,13 +67,19 @@ namespace Server.Views
             _view.OptionsView.ShowGroupPanel = false;
             _view.OptionsView.NewItemRowPosition = NewItemRowPosition.Top;
             _view.OptionsView.ShowButtonMode = DevExpress.XtraGrid.Views.Base.ShowButtonModeEnum.ShowAlways;
-            _view.Columns.Add(new GridColumn { FieldName = "Name", Caption = "Name", Visible = true, VisibleIndex = 0, Width = 140 });
-            _view.Columns.Add(new GridColumn { FieldName = "Instance", Caption = "Instance", Visible = true, VisibleIndex = 1, Width = 200, ColumnEdit = _instanceLookUp });
-            _view.Columns.Add(new GridColumn { FieldName = "RentCost", Caption = "Rent Cost", Visible = true, VisibleIndex = 2, Width = 100 });
-            _view.Columns.Add(new GridColumn { FieldName = "RenewCost", Caption = "Renew Cost", Visible = true, VisibleIndex = 3, Width = 100 });
-            _view.Columns.Add(new GridColumn { FieldName = "Duration", Caption = "Duration", Visible = true, VisibleIndex = 4, Width = 100 });
-            _view.Columns.Add(new GridColumn { FieldName = "MinGuildLevel", Caption = "Min Guild Level", Visible = true, VisibleIndex = 5, Width = 100 });
-            _view.Columns.Add(new GridColumn { FieldName = "Enabled", Caption = "Enabled", Visible = true, VisibleIndex = 6, Width = 70 });
+            _view.Columns.Add(new GridColumn { FieldName = "Name", Caption = "Name", Visible = true, VisibleIndex = 0, Width = 120 });
+            _view.Columns.Add(new GridColumn { FieldName = "Instance", Caption = "Instance", Visible = true, VisibleIndex = 1, Width = 160, ColumnEdit = _instanceLookUp });
+            _view.Columns.Add(new GridColumn { FieldName = "RentCost", Caption = "Rent Cost", Visible = true, VisibleIndex = 2, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "RenewCost", Caption = "Renew Cost", Visible = true, VisibleIndex = 3, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "Duration", Caption = "Duration", Visible = true, VisibleIndex = 4, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "MinGuildLevel", Caption = "Min Guild Level", Visible = true, VisibleIndex = 5, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "Enabled", Caption = "Enabled", Visible = true, VisibleIndex = 6, Width = 60 });
+            _view.Columns.Add(new GridColumn { FieldName = "Rank1Cost", Caption = "Rank1 Cost", Visible = true, VisibleIndex = 7, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "Rank2Cost", Caption = "Rank2 Cost", Visible = true, VisibleIndex = 8, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "Rank3Cost", Caption = "Rank3 Cost", Visible = true, VisibleIndex = 9, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "Rank4Cost", Caption = "Rank4 Cost", Visible = true, VisibleIndex = 10, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "Rank5Cost", Caption = "Rank5 Cost", Visible = true, VisibleIndex = 11, Width = 90 });
+            _view.Columns.Add(new GridColumn { FieldName = "RenewDiscountPercent", Caption = "Renew Discount %", Visible = true, VisibleIndex = 12, Width = 100 });
 
             Controls.Add(_grid);
             Controls.Add(ribbon);

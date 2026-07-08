@@ -1119,6 +1119,7 @@ namespace Server.Models
             ApplyServerBuff();
             ApplyCastleBuff();
             ApplyGuildBuff();
+            ApplyTerritoryBuff();
             ApplyObserverBuff();
             ApplyFameBuff();
 
@@ -5307,6 +5308,7 @@ namespace Server.Models
 
             ApplyCastleBuff();
             ApplyGuildBuff();
+            ApplyTerritoryBuff();
         }
 
         public void GuildLeave()
@@ -5349,6 +5351,7 @@ namespace Server.Models
 
             ApplyCastleBuff();
             ApplyGuildBuff();
+            ApplyTerritoryBuff();
         }
 
         public bool AtWar(PlayerObject player)
@@ -5446,6 +5449,7 @@ namespace Server.Models
 
             ApplyCastleBuff();
             ApplyGuildBuff();
+            ApplyTerritoryBuff();
         }
 
         #endregion

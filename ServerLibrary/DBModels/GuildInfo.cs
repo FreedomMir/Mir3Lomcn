@@ -301,6 +301,22 @@ namespace Server.DBModels
         }
         private DateTime _TerritoryExpiry;
 
+        /// <summary>Active territory upgrade rank (0–5). Reset when lease expires.</summary>
+        public int TerritoryRank
+        {
+            get { return _TerritoryRank; }
+            set
+            {
+                if (_TerritoryRank == value) return;
+
+                var oldValue = _TerritoryRank;
+                _TerritoryRank = value;
+
+                OnChanged(oldValue, value, "TerritoryRank");
+            }
+        }
+        private int _TerritoryRank;
+
         public UserItem[] Storage = new UserItem[1000];
 
         [Association("Members", true)]
@@ -339,6 +355,7 @@ namespace Server.DBModels
                 TerritoryIndex = Territory?.Index ?? 0,
                 TerritoryName = Territory?.Name,
                 TerritoryRemaining = remaining,
+                TerritoryRank = Territory != null && TerritoryExpiry > SEnvir.Now ? TerritoryRank : 0,
 
                 Tax = (int)(GuildTax * 100),
 
@@ -380,6 +397,7 @@ namespace Server.DBModels
             Castle = null;
             Territory = null;
             TerritoryExpiry = DateTime.MinValue;
+            TerritoryRank = 0;
 
             base.OnDeleted();
         }
@@ -424,6 +442,7 @@ namespace Server.DBModels
                 TerritoryIndex = Territory?.Index ?? 0,
                 TerritoryName = Territory?.Name,
                 TerritoryRemaining = remaining,
+                TerritoryRank = Territory != null && TerritoryExpiry > SEnvir.Now ? TerritoryRank : 0,
 
                 Members = new List<ClientGuildMemberInfo>(),
 

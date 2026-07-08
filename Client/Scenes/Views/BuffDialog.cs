@@ -87,6 +87,9 @@ namespace Client.Scenes.Views
                     case BuffType.Castle:
                         icon.Index = 242;
                         break;
+                    case BuffType.GuildTerritory:
+                        icon.Index = 242;
+                        break;
                     case BuffType.Observable:
                         icon.Index = 172;
                         break;
@@ -295,6 +298,9 @@ namespace Client.Scenes.Views
                     break;
                 case BuffType.Guild:
                     text = $"Guild\n";
+                    break;
+                case BuffType.GuildTerritory:
+                    text = $"Guild Territory\n";
                     break;
                 case BuffType.MapEffect:
                     text = $"Map Effect\n";

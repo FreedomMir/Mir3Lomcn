@@ -451,6 +451,35 @@ namespace Client.Scenes.Views
                     };
                     label.Tag = MessageType.Announcement;
                     break;
+                case MessageAction.GuildTerritoryRecall:
+                    string summonerName = args.Length > 0 ? args[0] as string : string.Empty;
+                    string territoryName = args.Length > 1 ? args[1] as string : "Guild Territory";
+                    label = new DXLabel
+                    {
+                        AutoSize = false,
+                        Text = string.IsNullOrEmpty(summonerName)
+                            ? $"You have been recalled to {territoryName}. Click here to go."
+                            : $"{summonerName} summoned you to {territoryName}. Click here to go.",
+                        Outline = false,
+                        DrawFormat = TextFormatFlags.WordBreak | TextFormatFlags.WordEllipsis,
+                        Parent = TextPanel,
+                    };
+                    label.MouseClick += (o, e) =>
+                    {
+                        CEnvir.Enqueue(new C.GuildTerritoryAcceptRecall { SummonerName = summonerName });
+                        label.Dispose();
+                    };
+                    label.MouseWheel += ScrollBar.DoMouseWheel;
+                    label.Disposing += (o, e) =>
+                    {
+                        if (IsDisposed) return;
+
+                        History.RemoveAll(x => x.Label == label);
+                        UpdateScrollBar();
+                        ScrollBar.Value = ScrollBar.MaxValue - label.Size.Height;
+                    };
+                    label.Tag = MessageType.Guild;
+                    break;
                 default:
                     return;
             }

@@ -1031,6 +1031,7 @@ namespace Library.Network.ServerPackets
         public int TerritoryIndex { get; set; }
         public string TerritoryName { get; set; }
         public TimeSpan TerritoryRemaining { get; set; }
+        public int TerritoryRank { get; set; }
 
         public List<ClientGuildMemberInfo> Members { get; set; }
     }
@@ -1152,6 +1153,13 @@ namespace Library.Network.ServerPackets
         public int TerritoryIndex { get; set; }
         public string TerritoryName { get; set; }
         public TimeSpan TerritoryRemaining { get; set; }
+        public int TerritoryRank { get; set; }
+    }
+
+    public sealed class GuildTerritoryRecallRequest : Packet
+    {
+        public string SummonerName { get; set; }
+        public string TerritoryName { get; set; }
     }
 
     public sealed class ReviveTimers : Packet

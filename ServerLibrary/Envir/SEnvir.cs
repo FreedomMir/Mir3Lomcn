@@ -1891,6 +1891,7 @@ namespace Server.Envir
                 string name = guild.Territory.Name;
                 guild.Territory = null;
                 guild.TerritoryExpiry = DateTime.MinValue;
+                guild.TerritoryRank = 0;
 
                 S.GuildUpdate update = guild.GetUpdatePacket();
                 foreach (GuildMemberInfo member in guild.Members)
@@ -1898,6 +1899,7 @@ namespace Server.Envir
                     if (member.Account.Connection?.Player == null) continue;
                     member.Account.Connection.ReceiveChat($"Guild territory lease for {name} has expired.", MessageType.System);
                     member.Account.Connection.Player.Enqueue(update);
+                    member.Account.Connection.Player.ApplyTerritoryBuff();
                 }
             }
         }

@@ -947,6 +947,8 @@ namespace Library
         public string TerritoryName { get; set; }
         /// <summary>Remaining lease time. Zero or negative means expired / none.</summary>
         public TimeSpan TerritoryRemaining { get; set; }
+        /// <summary>0–5 territory upgrade rank while leased.</summary>
+        public int TerritoryRank { get; set; }
 
         public List<ClientGuildMemberInfo> Members { get; set; }
 

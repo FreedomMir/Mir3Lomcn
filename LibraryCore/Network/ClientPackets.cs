@@ -644,6 +644,25 @@ namespace Library.Network.ClientPackets
         public int Index { get; set; }
     }
 
+    public sealed class GuildTerritoryAcceptRecall : Packet
+    {
+        public string SummonerName { get; set; }
+    }
+
+    public sealed class GuildTerritoryUpgrade : Packet
+    {
+    }
+
+    public sealed class GuildTerritorySummon : Packet
+    {
+        /// <summary>Empty = summon all (rank 2+). Otherwise member character name (rank 1+).</summary>
+        public string MemberName { get; set; }
+    }
+
+    public sealed class GuildTerritoryRecall : Packet
+    {
+    }
+
     public sealed class QuestAccept : Packet
     {
         public int Index { get; set; }
