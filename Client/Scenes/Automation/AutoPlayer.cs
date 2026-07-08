@@ -3396,26 +3396,11 @@ public sealed class AutoPlayer : IDisposable
 
 	private bool ShouldTownSell(ClientUserItem item)
 	{
-		if (NPCSellHelper.ShouldAutoSell(item))
-		{
-			return true;
-		}
-		if (!NPCSellHelper.IsSellable(item))
+		if (!Settings.CanAutoSell)
 		{
 			return false;
 		}
-		switch (Scene.GetDropFilterRule(item.Info)?.AutoSellMode ?? AutoSellMode.Never)
-		{
-		case AutoSellMode.All:
-			return true;
-		case AutoSellMode.NormalOnly:
-		{
-			Stats addedStats = item.AddedStats;
-			return addedStats == null || addedStats.Count <= 0;
-		}
-		default:
-			return false;
-		}
+		return NPCSellHelper.ShouldAutoSell(item);
 	}
 
 	private List<CellLinkInfo> GetRepairLinks()
@@ -3820,6 +3805,35 @@ public sealed class AutoPlayer : IDisposable
 		needsCovered = 0;
 		foreach (AutoTownAction item in work)
 		{
+			if (item == AutoTownAction.Sell)
+			{
+				List<ItemType> remainingTypes = GetSellLinks()
+					.Select(link => Scene.Inventory[link.Slot]?.Info?.ItemType)
+					.Where(t => t.HasValue)
+					.Select(t => t.Value)
+					.Distinct()
+					.ToList();
+
+				while (remainingTypes.Count > 0)
+				{
+					TownNPCRef sellNpc = FindTownNPC(mapIndex, AutoTownAction.Sell, remainingTypes);
+					if (sellNpc == null) break;
+
+					list.Add(new TownWorkItem
+					{
+						Action = AutoTownAction.Sell,
+						NPC = sellNpc
+					});
+
+					List<ItemType> covered = TownNPCHelper.GetAcceptedSellTypes(sellNpc.NPCInfo, remainingTypes);
+					if (covered.Count == 0) break;
+
+					foreach (ItemType type in covered)
+						remainingTypes.Remove(type);
+				}
+				continue;
+			}
+
 			if (item != AutoTownAction.Buy)
 			{
 				TownNPCRef TownNPCRef = FindTownNPC(mapIndex, item);
@@ -3871,9 +3885,9 @@ public sealed class AutoPlayer : IDisposable
 		return list;
 	}
 
-	private TownNPCRef FindTownNPC(int mapIndex, AutoTownAction action)
+	private TownNPCRef FindTownNPC(int mapIndex, AutoTownAction action, IEnumerable<ItemType> preferredTypes = null)
 	{
-		return TownNPCHelper.FindTownNPC(mapIndex, action);
+		return TownNPCHelper.FindTownNPC(mapIndex, action, preferredTypes);
 	}
 
 	private int NPCDistance(TownNPCRef respawn)
@@ -3980,11 +3994,18 @@ public sealed class AutoPlayer : IDisposable
 		{
 		case AutoTownAction.Sell:
 		{
-			List<CellLinkInfo> sellLinks = GetSellLinks();
+			List<CellLinkInfo> sellLinks = GetSellLinks()
+				.Where(link =>
+				{
+					ClientUserItem inv = Scene.Inventory[link.Slot];
+					ItemType? type = inv?.Info?.ItemType;
+					return type.HasValue && TownNPCHelper.AcceptsSellType(work.NPC.NPCInfo, type.Value);
+				})
+				.ToList();
 			if (sellLinks.Count == 0)
 			{
-				_townFailureMessages[AutoTownAction.Sell] = "No eligible items are marked for Auto Sell.";
-				DebugLog("Town: nothing to sell, skipping.");
+				_townFailureMessages[AutoTownAction.Sell] = "No eligible items for this sell merchant.";
+				DebugLog("Town: nothing to sell at this NPC, skipping.");
 				StartNextTownWork();
 				return;
 			}

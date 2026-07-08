@@ -16,6 +16,11 @@ namespace Library
         public bool TownOnNoTalisman { get; set; } = true;
         public bool TownOnEquipmentBroken { get; set; } = true;
         public bool CanAutoSell { get; set; } = true;
+        /// <summary>
+        /// What unlocked sellable inventory items to dump during town runs.
+        /// NormalOnly = unlocked sellable with no added stats; All = every unlocked sellable item.
+        /// </summary>
+        public AutoSellMode SellMode { get; set; } = AutoSellMode.NormalOnly;
         public bool CanAutoRepair { get; set; } = true;
         public bool ShouldSpecialRepair { get; set; }
         public bool CanAutoBuy { get; set; } = true;

@@ -11,15 +11,7 @@ public sealed class AutoPlayDialog : DXWindow
 {
 	private const int ClientWidth = 300;
 
-	private const int ClientHeight = 320;
-
-	private const int RowHeight = 24;
-
-	private const int Padding = 8;
-
-	private const int NumberWidth = 56;
-
-	private const int LabelWidth = 210;
+	private const int ClientHeight = 360;
 
 	private DXTabControl TabControl;
 
@@ -59,6 +51,8 @@ public sealed class AutoPlayDialog : DXWindow
 
 	public DXCheckBox SellCheck;
 
+	public DXComboBox SellModeBox;
+
 	public DXCheckBox RepairCheck;
 
 	public DXCheckBox SpecialRepairCheck;
@@ -77,7 +71,7 @@ public sealed class AutoPlayDialog : DXWindow
 	{
 		base.TitleLabel.Text = "Auto Play Settings";
 		base.HasFooter = false;
-		SetClientSize(new Size(300, 320));
+		SetClientSize(new Size(ClientWidth, ClientHeight));
 		TabControl = new DXTabControl
 		{
 			Parent = this,
@@ -124,6 +118,8 @@ public sealed class AutoPlayDialog : DXWindow
 		num = AddSubHeader(TownTab, "Town Actions", num);
 		SellCheck = AddCheck(TownTab, "Can Auto Sell", num);
 		num += 24;
+		SellModeBox = AddSellMode(TownTab, "Sell Mode", num);
+		num += 24;
 		RepairCheck = AddCheck(TownTab, "Can Auto Repair", num);
 		num += 24;
 		SpecialRepairCheck = AddCheck(TownTab, "Should Special Repair", num);
@@ -167,6 +163,47 @@ public sealed class AutoPlayDialog : DXWindow
 			SendUpdate();
 		};
 		return dXCheckBox;
+	}
+
+	private DXComboBox AddSellMode(DXControl parent, string text, int y)
+	{
+		new DXLabel
+		{
+			Parent = parent,
+			Text = text,
+			Location = new Point(14, y + 4)
+		};
+
+		DXComboBox box = new DXComboBox
+		{
+			Parent = parent,
+			Location = new Point(110, y + 2),
+			Size = new Size(166, DXComboBox.DefaultNormalHeight),
+			DropDownHeight = 90
+		};
+
+		new DXListBoxItem
+		{
+			Parent = box.ListBox,
+			Label = { Text = "Never" },
+			Item = AutoSellMode.Never
+		};
+		new DXListBoxItem
+		{
+			Parent = box.ListBox,
+			Label = { Text = "Normal Only" },
+			Item = AutoSellMode.NormalOnly
+		};
+		new DXListBoxItem
+		{
+			Parent = box.ListBox,
+			Label = { Text = "All Unlocked" },
+			Item = AutoSellMode.All
+		};
+
+		box.ListBox.SelectItem(AutoSellMode.NormalOnly);
+		box.SelectedItemChanged += (o, e) => SendUpdate();
+		return box;
 	}
 
 	private DXNumberTextBox AddNumber(DXControl parent, string text, int y, int min, int max)
@@ -223,6 +260,7 @@ public sealed class AutoPlayDialog : DXWindow
 			TownTalismanCheck.Checked = clientAutoPlaySettings.TownOnNoTalisman;
 			TownBrokenCheck.Checked = clientAutoPlaySettings.TownOnEquipmentBroken;
 			SellCheck.Checked = clientAutoPlaySettings.CanAutoSell;
+			SellModeBox?.ListBox?.SelectItem(clientAutoPlaySettings.SellMode);
 			RepairCheck.Checked = clientAutoPlaySettings.CanAutoRepair;
 			SpecialRepairCheck.Checked = clientAutoPlaySettings.ShouldSpecialRepair;
 			BuyCheck.Checked = clientAutoPlaySettings.CanAutoBuy;
@@ -253,6 +291,8 @@ public sealed class AutoPlayDialog : DXWindow
 				settings.TownOnNoTalisman = TownTalismanCheck.Checked;
 				settings.TownOnEquipmentBroken = TownBrokenCheck.Checked;
 				settings.CanAutoSell = SellCheck.Checked;
+				if (SellModeBox?.SelectedItem is AutoSellMode mode)
+					settings.SellMode = mode;
 				settings.CanAutoRepair = RepairCheck.Checked;
 				settings.ShouldSpecialRepair = SpecialRepairCheck.Checked;
 				settings.CanAutoBuy = BuyCheck.Checked;

@@ -10261,17 +10261,72 @@ namespace Server.Models
                 Enqueue(result);
                 return;
             }
-            if (!PrepareAutoTownNPC(p.ObjectID, NPCDialogType.BuySell))
+
+            // Group by ItemType — BuySell pages only accept matching Types.
+            var groups = new Dictionary<ItemType, List<CellLinkInfo>>();
+            foreach (CellLinkInfo link in p.Links)
             {
-                result.Message = "Unable to reach sell merchant.";
+                UserItem item = GetAutoSellItem(link);
+                if (item?.Info == null) continue;
+
+                if (!groups.TryGetValue(item.Info.ItemType, out List<CellLinkInfo> group))
+                {
+                    group = new List<CellLinkInfo>();
+                    groups[item.Info.ItemType] = group;
+                }
+                group.Add(link);
+            }
+
+            if (groups.Count == 0)
+            {
+                result.Message = "No items to sell.";
                 Enqueue(result);
                 return;
             }
 
-            NPCSell(p.Links);
-            result.Success = true;
-            result.Message = $"Sold {p.Links.Count} item line(s).";
+            int soldGroups = 0;
+            string failMessage = null;
+
+            foreach (KeyValuePair<ItemType, List<CellLinkInfo>> pair in groups)
+            {
+                if (!PrepareAutoTownNPC(p.ObjectID, NPCDialogType.BuySell, pair.Key))
+                {
+                    failMessage ??= $"No sell page for {pair.Key}.";
+                    continue;
+                }
+
+                bool hadItems = pair.Value.Any(link => GetAutoSellItem(link) != null);
+                NPCSell(pair.Value);
+                bool sold = hadItems && pair.Value.All(link => GetAutoSellItem(link) == null);
+
+                if (sold)
+                    soldGroups++;
+                else
+                    failMessage ??= $"Could not sell {pair.Key}.";
+            }
+
+            result.Success = soldGroups > 0;
+            result.Message = result.Success
+                ? $"Sold {soldGroups} item type group(s)."
+                : (failMessage ?? "Sell failed.");
             Enqueue(result);
+        }
+
+        private UserItem GetAutoSellItem(CellLinkInfo link)
+        {
+            if (link == null) return null;
+
+            switch (link.GridType)
+            {
+                case GridType.Inventory:
+                    if (link.Slot < 0 || link.Slot >= Inventory.Length) return null;
+                    return Inventory[link.Slot];
+                case GridType.CompanionInventory:
+                    if (Companion == null || link.Slot < 0 || link.Slot >= Companion.Inventory.Length) return null;
+                    return Companion.Inventory[link.Slot];
+                default:
+                    return null;
+            }
         }
 
         public void AutoRepair(C.AutoRepair p)
@@ -10325,7 +10380,7 @@ namespace Server.Models
             Enqueue(result);
         }
 
-        private bool PrepareAutoTownNPC(uint objectID, NPCDialogType dialogType)
+        private bool PrepareAutoTownNPC(uint objectID, NPCDialogType dialogType, ItemType? requiredItemType = null)
         {
             NPC = null;
             NPCPage = null;
@@ -10335,7 +10390,7 @@ namespace Server.Models
                 if (ob.ObjectID != objectID) continue;
                 if (!Functions.InRange(ob.CurrentLocation, CurrentLocation, Config.MaxViewRange)) return false;
 
-                NPCPage page = FindNPCPage(ob.NPCInfo?.EntryPage, dialogType);
+                NPCPage page = FindNPCPage(ob.NPCInfo?.EntryPage, dialogType, requiredItemType);
                 if (page == null) return false;
 
                 NPC = ob;
@@ -10346,7 +10401,7 @@ namespace Server.Models
             return false;
         }
 
-        private static NPCPage FindNPCPage(NPCPage root, NPCDialogType dialogType)
+        private static NPCPage FindNPCPage(NPCPage root, NPCDialogType dialogType, ItemType? requiredItemType = null)
         {
             if (root == null) return null;
 
@@ -10354,12 +10409,24 @@ namespace Server.Models
             var stack = new Stack<NPCPage>();
             stack.Push(root);
 
+            NPCPage fallback = null;
+
             while (stack.Count > 0)
             {
                 NPCPage page = stack.Pop();
                 if (page == null || !visited.Add(page)) continue;
 
-                if (page.DialogType == dialogType) return page;
+                if (page.DialogType == dialogType)
+                {
+                    if (requiredItemType == null)
+                        return page;
+
+                    if (page.Types != null && page.Types.Any(t => t.ItemType == requiredItemType.Value))
+                        return page;
+
+                    // Keep first BuySell page as last-resort fallback for buy (no Types needed).
+                    fallback ??= page;
+                }
 
                 if (page.SuccessPage != null)
                     stack.Push(page.SuccessPage);
@@ -10373,7 +10440,11 @@ namespace Server.Models
                 }
             }
 
-            return null;
+            // For sells, Types must match — do not fall back to an empty/wrong Types page.
+            if (dialogType == NPCDialogType.BuySell && requiredItemType != null)
+                return null;
+
+            return fallback;
         }
 
         public void NPCFragment(List<CellLinkInfo> links)
