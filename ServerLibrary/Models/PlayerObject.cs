@@ -10060,11 +10060,11 @@ namespace Server.Models
             {
                 if (good.Index != p.Index || good.Item == null || good.GoodsIndex != NPC.NPCInfo.GoodsIndex) continue;
 
-                if (p.Amount > good.Item.StackSize) return;
+                long amountToBuy = good.NormaliseCurrencyPurchaseAmount(currency, p.Amount);
 
-                var price = (int)Math.Max(1, good.Cost * currency.ExchangeRate);
+                if (!good.IsCurrencyGood && amountToBuy > good.Item.StackSize) return;
 
-                long cost = (long)(price * p.Amount);
+                long cost = good.CostFor(currency, amountToBuy);
 
                 if (p.GuildFunds && currency.Type != CurrencyType.Gold)
                 {
@@ -10117,7 +10117,7 @@ namespace Server.Models
                         break;
                 }
 
-                ItemCheck check = new ItemCheck(good.Item, p.Amount, flags, TimeSpan.Zero);
+                ItemCheck check = new ItemCheck(good.Item, amountToBuy, flags, TimeSpan.Zero);
 
                 if (!CanGainItems(true, check))
                 {
@@ -10195,7 +10195,8 @@ namespace Server.Models
 
                 if (!NPCPage.Types.Any(x => x.ItemType == item.Info.ItemType)) return;
 
-                var price = (long)(item.Price(link.Count) * currency.ExchangeRate);
+                decimal exchangeRate = currency.ExchangeRate <= 0M ? 1M : currency.ExchangeRate;
+                var price = (long)(item.Price(link.Count) / exchangeRate);
 
                 count += link.Count;
                 amount += price;

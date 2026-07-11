@@ -457,6 +457,7 @@ namespace Server.Envir
             RespawnInfoList = Session.GetCollection<RespawnInfo>();
             MagicInfoList = Session.GetCollection<MagicInfo>();
             CurrencyInfoList = Session.GetCollection<CurrencyInfo>();
+            Globals.CurrencyInfoList = CurrencyInfoList;
             FameInfoList = Session.GetCollection<FameInfo>();
 
             AccountInfoList = Session.GetCollection<AccountInfo>();
@@ -1265,6 +1266,7 @@ namespace Server.Envir
             AccountInfoList = null;
             CharacterInfoList = null;
             CurrencyInfoList = null;
+            Globals.CurrencyInfoList = null;
             InstanceMapInfoList = null;
 
             MapInfoList = null;
